@@ -1,0 +1,13 @@
+(module 0
+    (class 1
+        (id 1 T)
+        (type_formals_list 0)
+        (def 2
+            (id 2 __init__)
+            (formals_list 2
+                (id 2 self))
+            (type_var 0 $#1 0)
+            (stmt_list 0))
+        (stmt_list 0
+            (println 4
+                (string_literal 4 "hello")))))

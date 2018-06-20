@@ -1,0 +1,5268 @@
+State 26 conflicts: 4 reduce/reduce
+State 34 conflicts: 4 reduce/reduce
+State 226 conflicts: 4 reduce/reduce
+State 277 conflicts: 4 reduce/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: %empty
+    2        | statements
+
+    3 statements: statement
+    4           | statements statement
+
+    5 atom: identifier
+    6     | literal
+    7     | enclosure
+
+    8 identifier: ID
+
+    9 literal: stringliteral
+   10        | INT
+   11        | "True"
+   12        | "False"
+   13        | "None"
+
+   14 stringliteral: STRING
+   15              | stringliteral STRING
+
+   16 enclosure: parenth_form
+   17          | list_display
+   18          | dict_display
+
+   19 parenth_form: '(' ')'
+   20             | '(' expression_or_list ')'
+
+   21 list_display: '[' expression_list_opt_comma ']'
+
+   22 dict_display: '{' key_datum_list1 opt_comma '}'
+   23             | '{' '}'
+
+   24 key_datum_list1: key_datum
+   25                | key_datum_list1 ',' key_datum
+
+   26 key_datum: expression ':' expression
+
+   27 primary: atom
+   28        | attributeref
+   29        | subscript
+   30        | slice
+   31        | call
+
+   32 attributeref: primary '.' identifier
+   33             | parameterized_type '.' identifier
+
+   34 subscript: primary '[' expression_or_list ']'
+
+   35 slice: primary '[' low_bound ':' high_bound ']'
+
+   36 subscript_target: primary '[' expression_or_list ']'
+
+   37 slice_target: primary '[' low_bound ':' high_bound ']'
+
+   38 low_bound: expression
+   39          | %empty
+
+   40 high_bound: expression
+   41           | %empty
+
+   42 call: primary '(' expression_list_opt_comma ')'
+   43     | parameterized_type '(' expression_list_opt_comma ')'
+
+   44 expression: conditional_expression
+
+   45 conditional_expression: expr1 "if" expr1 "else" expression
+   46                       | expr1
+
+   47 expr1: expr2
+   48      | expr1 "or" expr1
+   49      | expr1 "and" expr1
+   50      | "not" expr1
+
+   51 expression_or_list: expression
+   52                   | expression ','
+   53                   | expression ',' expression_list1 opt_comma
+
+   54 comp_operator: '>'
+   55              | '<'
+   56              | ">="
+   57              | "<="
+   58              | "=="
+   59              | "!="
+   60              | "in"
+   61              | "is"
+   62              | "not" "in"
+   63              | "is" "not"
+
+   64 expr2: left_compare comp_operator expr3
+   65      | expr3 comp_operator expr3
+   66      | expr3
+
+   67 left_compare: expr3 comp_operator expr3
+   68             | left_compare comp_operator expr3
+
+   69 expr3: primary
+   70      | '-' expr3
+   71      | '+' expr3
+   72      | expr3 '+' expr3
+   73      | expr3 '-' expr3
+   74      | expr3 '*' expr3
+   75      | expr3 '/' expr3
+   76      | expr3 '%' expr3
+   77      | expr3 "**" expr3
+
+   78 simple_stmt: expression_stmt
+   79            | assignment_stmt
+   80            | print_stmt
+   81            | return_stmt
+   82            | break_stmt
+   83            | continue_stmt
+
+   84 expression_stmt: expression_or_list
+
+   85 assignment_stmt: target_list '=' expression_or_list
+   86                | target_list '=' assignment_stmt
+
+   87 target_list: target
+   88            | '(' target ')'
+   89            | target ','
+   90            | '(' target ',' ')'
+   91            | '[' target opt_comma ']'
+   92            | target_list2 opt_comma
+   93            | '(' target_list2 ')'
+   94            | '[' target_list2 opt_comma ']'
+
+   95 target_list2: target ',' target
+   96             | target_list2 ',' target
+
+   97 target: identifier
+   98       | identifier type_annotation
+   99       | attributeref
+  100       | subscript_target
+  101       | slice_target
+
+  102 print_stmt: "print" expression_list1
+  103           | "print"
+  104           | "print" expression_list1 ','
+
+  105 return_stmt: "return" expression_or_list
+  106            | "return"
+
+  107 break_stmt: "break"
+
+  108 continue_stmt: "continue"
+
+  109 compound_stmt: if_stmt
+  110              | while_stmt
+  111              | for_stmt
+  112              | funcdef
+  113              | classdef
+
+  114 suite: suite_stmts
+
+  115 suite_stmts: stmt_list NEWLINE
+  116            | NEWLINE INDENT statements DEDENT
+  117            | error NEWLINE
+  118            | NEWLINE INDENT error DEDENT
+
+  119 statement: stmt_list NEWLINE
+  120          | compound_stmt
+
+  121 stmt_list: "pass" opt_semi
+  122          | simple_stmt opt_semi
+  123          | "pass" ';' stmt_list
+  124          | simple_stmt ';' stmt_list
+
+  125 if_stmt: "if" expression ':' suite elifs
+
+  126 elifs: "elif" expression ':' suite elifs
+  127      | else_clause
+
+  128 else_clause: %empty
+  129            | "else" ':' suite
+
+  130 while_stmt: "while" expression ':' suite else_clause
+
+  131 for_stmt: "for" target_list "in" expression_or_list ':' suite else_clause
+
+  132 funcdef: "def" funcname parameter_list type_annotation ':' funcbody
+  133        | "def" funcname parameter_list ':' funcbody
+
+  134 funcbody: suite_stmts
+  135         | native opt_semi
+  136         | NEWLINE INDENT native opt_semi DEDENT
+
+  137 native: "native" stringliteral NEWLINE
+
+  138 parameter_list: '(' ')'
+  139               | '(' parameters1 opt_comma ')'
+
+  140 parameters1: parameter
+  141            | parameters1 ',' parameter
+
+  142 parameter: identifier
+  143          | identifier type_annotation
+
+  144 funcname: identifier
+
+  145 classdef: "class" identifier type_formals ':' classbody
+
+  146 type_formals: %empty
+  147             | "of" '[' type_var_list1 ']'
+
+  148 type_var_list1: type_var
+  149               | type_var_list1 ',' type_var
+
+  150 classbody: suite_stmts
+
+  151 type_annotation: "::" type
+
+  152 type: parameterized_type
+  153     | identifier
+  154     | type_var
+  155     | '(' type_list ')' "->" type
+
+  156 type_var: TYPE_VAR
+
+  157 parameterized_type: identifier type_params
+
+  158 type_params: "of" '[' types ']'
+  159            | "of" type
+
+  160 type_list: %empty
+  161          | types
+
+  162 types: type
+  163      | types ',' type
+
+  164 expression_list1: expression
+  165                 | expression_list1 ',' expression
+
+  166 expression_list_opt_comma: %empty
+  167                          | expression_list1 opt_comma
+
+  168 opt_comma: %empty
+  169          | ','
+
+  170 opt_semi: %empty
+  171         | ';'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'%' (37) 76
+'(' (40) 19 20 42 43 88 90 93 138 139 155
+')' (41) 19 20 42 43 88 90 93 138 139 155
+'*' (42) 74
+'+' (43) 71 72
+',' (44) 25 52 53 89 90 95 96 104 141 149 163 165 169
+'-' (45) 70 73
+'.' (46) 32 33
+'/' (47) 75
+':' (58) 26 35 37 125 126 129 130 131 132 133 145
+';' (59) 123 124 171
+'<' (60) 55
+'=' (61) 85 86
+'>' (62) 54
+'[' (91) 21 34 35 36 37 91 94 147 158
+']' (93) 21 34 35 36 37 91 94 147 158
+'{' (123) 22 23
+'}' (125) 22 23
+error (256) 117 118
+ID (258) 8
+STRING (259) 14 15
+INT (260) 10
+TYPE_VAR (261) 156
+NEWLINE (262) 115 116 117 118 119 136 137
+INDENT (263) 116 118 136
+DEDENT (264) 116 118 136
+"**" (265) 77
+">=" (266) 56
+"<=" (267) 57
+"==" (268) 58
+"!=" (269) 59
+"in" (270) 60 62 131
+"is" (271) 61 63
+"::" (272) 151
+"->" (273) 155
+"and" (274) 49
+"break" (275) 107
+"class" (276) 145
+"continue" (277) 108
+"def" (278) 132 133
+"elif" (279) 126
+"else" (280) 45 129
+"False" (281) 12
+"for" (282) 131
+"if" (283) 45 125
+"native" (284) 137
+"None" (285) 13
+"not" (286) 50 62 63
+"of" (287) 147 158 159
+"or" (288) 48
+"pass" (289) 121 123
+"print" (290) 102 103 104
+"return" (291) 105 106
+"True" (292) 11
+"while" (293) 130
+UNOP (294)
+
+
+Nonterminals, with rules where they appear
+
+$accept (58)
+    on left: 0
+program (59)
+    on left: 1 2, on right: 0
+statements (60)
+    on left: 3 4, on right: 2 4 116
+atom (61)
+    on left: 5 6 7, on right: 27
+identifier (62)
+    on left: 8, on right: 5 32 33 97 98 142 143 144 145 153 157
+literal (63)
+    on left: 9 10 11 12 13, on right: 6
+stringliteral (64)
+    on left: 14 15, on right: 9 15 137
+enclosure (65)
+    on left: 16 17 18, on right: 7
+parenth_form (66)
+    on left: 19 20, on right: 16
+list_display (67)
+    on left: 21, on right: 17
+dict_display (68)
+    on left: 22 23, on right: 18
+key_datum_list1 (69)
+    on left: 24 25, on right: 22 25
+key_datum (70)
+    on left: 26, on right: 24 25
+primary (71)
+    on left: 27 28 29 30 31, on right: 32 34 35 36 37 42 69
+attributeref (72)
+    on left: 32 33, on right: 28 99
+subscript (73)
+    on left: 34, on right: 29
+slice (74)
+    on left: 35, on right: 30
+subscript_target (75)
+    on left: 36, on right: 100
+slice_target (76)
+    on left: 37, on right: 101
+low_bound (77)
+    on left: 38 39, on right: 35 37
+high_bound (78)
+    on left: 40 41, on right: 35 37
+call (79)
+    on left: 42 43, on right: 31
+expression (80)
+    on left: 44, on right: 26 38 40 45 51 52 53 125 126 130 164 165
+conditional_expression (81)
+    on left: 45 46, on right: 44
+expr1 (82)
+    on left: 47 48 49 50, on right: 45 46 48 49 50
+expression_or_list (83)
+    on left: 51 52 53, on right: 20 34 36 84 85 105 131
+comp_operator (84)
+    on left: 54 55 56 57 58 59 60 61 62 63, on right: 64 65 67 68
+expr2 (85)
+    on left: 64 65 66, on right: 47
+left_compare (86)
+    on left: 67 68, on right: 64 68
+expr3 (87)
+    on left: 69 70 71 72 73 74 75 76 77, on right: 64 65 66 67 68 70
+    71 72 73 74 75 76 77
+simple_stmt (88)
+    on left: 78 79 80 81 82 83, on right: 122 124
+expression_stmt (89)
+    on left: 84, on right: 78
+assignment_stmt (90)
+    on left: 85 86, on right: 79 86
+target_list (91)
+    on left: 87 88 89 90 91 92 93 94, on right: 85 86 131
+target_list2 (92)
+    on left: 95 96, on right: 92 93 94 96
+target (93)
+    on left: 97 98 99 100 101, on right: 87 88 89 90 91 95 96
+print_stmt (94)
+    on left: 102 103 104, on right: 80
+return_stmt (95)
+    on left: 105 106, on right: 81
+break_stmt (96)
+    on left: 107, on right: 82
+continue_stmt (97)
+    on left: 108, on right: 83
+compound_stmt (98)
+    on left: 109 110 111 112 113, on right: 120
+suite (99)
+    on left: 114, on right: 125 126 129 130 131
+suite_stmts (100)
+    on left: 115 116 117 118, on right: 114 134 150
+statement (101)
+    on left: 119 120, on right: 3 4
+stmt_list (102)
+    on left: 121 122 123 124, on right: 115 119 123 124
+if_stmt (103)
+    on left: 125, on right: 109
+elifs (104)
+    on left: 126 127, on right: 125 126
+else_clause (105)
+    on left: 128 129, on right: 127 130 131
+while_stmt (106)
+    on left: 130, on right: 110
+for_stmt (107)
+    on left: 131, on right: 111
+funcdef (108)
+    on left: 132 133, on right: 112
+funcbody (109)
+    on left: 134 135 136, on right: 132 133
+native (110)
+    on left: 137, on right: 135 136
+parameter_list (111)
+    on left: 138 139, on right: 132 133
+parameters1 (112)
+    on left: 140 141, on right: 139 141
+parameter (113)
+    on left: 142 143, on right: 140 141
+funcname (114)
+    on left: 144, on right: 132 133
+classdef (115)
+    on left: 145, on right: 113
+type_formals (116)
+    on left: 146 147, on right: 145
+type_var_list1 (117)
+    on left: 148 149, on right: 147 149
+classbody (118)
+    on left: 150, on right: 145
+type_annotation (119)
+    on left: 151, on right: 98 132 143
+type (120)
+    on left: 152 153 154 155, on right: 151 155 159 162 163
+type_var (121)
+    on left: 156, on right: 148 149 154
+parameterized_type (122)
+    on left: 157, on right: 33 43 152
+type_params (123)
+    on left: 158 159, on right: 157
+type_list (124)
+    on left: 160 161, on right: 155
+types (125)
+    on left: 162 163, on right: 158 161 163
+expression_list1 (126)
+    on left: 164 165, on right: 53 102 104 165 167
+expression_list_opt_comma (127)
+    on left: 166 167, on right: 21 42 43
+opt_comma (128)
+    on left: 168 169, on right: 22 53 91 92 94 139 167
+opt_semi (129)
+    on left: 170 171, on right: 121 122 135 136
+
+
+State 0
+
+    0 $accept: . program $end
+
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "class"     shift, and go to state 5
+    "continue"  shift, and go to state 6
+    "def"       shift, and go to state 7
+    "False"     shift, and go to state 8
+    "for"       shift, and go to state 9
+    "if"        shift, and go to state 10
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    "while"     shift, and go to state 17
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    $default  reduce using rule 1 (program)
+
+    program                 go to state 23
+    statements              go to state 24
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    compound_stmt           go to state 57
+    statement               go to state 58
+    stmt_list               go to state 59
+    if_stmt                 go to state 60
+    while_stmt              go to state 61
+    for_stmt                go to state 62
+    funcdef                 go to state 63
+    classdef                go to state 64
+    parameterized_type      go to state 65
+
+
+State 1
+
+    8 identifier: ID .
+
+    $default  reduce using rule 8 (identifier)
+
+
+State 2
+
+   14 stringliteral: STRING .
+
+    $default  reduce using rule 14 (stringliteral)
+
+
+State 3
+
+   10 literal: INT .
+
+    $default  reduce using rule 10 (literal)
+
+
+State 4
+
+  107 break_stmt: "break" .
+
+    $default  reduce using rule 107 (break_stmt)
+
+
+State 5
+
+  145 classdef: "class" . identifier type_formals ':' classbody
+
+    ID  shift, and go to state 1
+
+    identifier  go to state 66
+
+
+State 6
+
+  108 continue_stmt: "continue" .
+
+    $default  reduce using rule 108 (continue_stmt)
+
+
+State 7
+
+  132 funcdef: "def" . funcname parameter_list type_annotation ':' funcbody
+  133        | "def" . funcname parameter_list ':' funcbody
+
+    ID  shift, and go to state 1
+
+    identifier  go to state 67
+    funcname    go to state 68
+
+
+State 8
+
+   12 literal: "False" .
+
+    $default  reduce using rule 12 (literal)
+
+
+State 9
+
+  131 for_stmt: "for" . target_list "in" expression_or_list ':' suite else_clause
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 20
+    '['      shift, and go to state 21
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target_list         go to state 70
+    target_list2        go to state 51
+    target              go to state 52
+    parameterized_type  go to state 65
+
+
+State 10
+
+  125 if_stmt: "if" . expression ':' suite elifs
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 76
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 11
+
+   13 literal: "None" .
+
+    $default  reduce using rule 13 (literal)
+
+
+State 12
+
+   50 expr1: "not" . expr1
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr1               go to state 77
+    expr2               go to state 44
+    left_compare        go to state 45
+    expr3               go to state 46
+    parameterized_type  go to state 65
+
+
+State 13
+
+  121 stmt_list: "pass" . opt_semi
+  123          | "pass" . ';' stmt_list
+
+    ';'  shift, and go to state 78
+
+    $default  reduce using rule 170 (opt_semi)
+
+    opt_semi  go to state 79
+
+
+State 14
+
+  102 print_stmt: "print" . expression_list1
+  103           | "print" .
+  104           | "print" . expression_list1 ','
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 103 (print_stmt)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 80
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+    expression_list1        go to state 81
+
+
+State 15
+
+  105 return_stmt: "return" . expression_or_list
+  106            | "return" .
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 106 (return_stmt)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 82
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 16
+
+   11 literal: "True" .
+
+    $default  reduce using rule 11 (literal)
+
+
+State 17
+
+  130 while_stmt: "while" . expression ':' suite else_clause
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 83
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 18
+
+   71 expr3: '+' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 84
+    parameterized_type  go to state 65
+
+
+State 19
+
+   70 expr3: '-' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 85
+    parameterized_type  go to state 65
+
+
+State 20
+
+   19 parenth_form: '(' . ')'
+   20             | '(' . expression_or_list ')'
+   88 target_list: '(' . target ')'
+   90            | '(' . target ',' ')'
+   93            | '(' . target_list2 ')'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    ')'      shift, and go to state 86
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 87
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    target_list2            go to state 88
+    target                  go to state 89
+    parameterized_type      go to state 65
+
+
+State 21
+
+   21 list_display: '[' . expression_list_opt_comma ']'
+   91 target_list: '[' . target opt_comma ']'
+   94            | '[' . target_list2 opt_comma ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 166 (expression_list_opt_comma)
+
+    atom                       go to state 25
+    identifier                 go to state 26
+    literal                    go to state 27
+    stringliteral              go to state 28
+    enclosure                  go to state 29
+    parenth_form               go to state 30
+    list_display               go to state 31
+    dict_display               go to state 32
+    primary                    go to state 33
+    attributeref               go to state 34
+    subscript                  go to state 35
+    slice                      go to state 36
+    subscript_target           go to state 37
+    slice_target               go to state 38
+    call                       go to state 39
+    expression                 go to state 80
+    conditional_expression     go to state 41
+    expr1                      go to state 42
+    expr2                      go to state 44
+    left_compare               go to state 45
+    expr3                      go to state 46
+    target_list2               go to state 90
+    target                     go to state 91
+    parameterized_type         go to state 65
+    expression_list1           go to state 92
+    expression_list_opt_comma  go to state 93
+
+
+State 22
+
+   22 dict_display: '{' . key_datum_list1 opt_comma '}'
+   23             | '{' . '}'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+    '}'      shift, and go to state 94
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    key_datum_list1         go to state 95
+    key_datum               go to state 96
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 97
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 23
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 98
+
+
+State 24
+
+    2 program: statements .
+    4 statements: statements . statement
+
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "class"     shift, and go to state 5
+    "continue"  shift, and go to state 6
+    "def"       shift, and go to state 7
+    "False"     shift, and go to state 8
+    "for"       shift, and go to state 9
+    "if"        shift, and go to state 10
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    "while"     shift, and go to state 17
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    $default  reduce using rule 2 (program)
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    compound_stmt           go to state 57
+    statement               go to state 99
+    stmt_list               go to state 59
+    if_stmt                 go to state 60
+    while_stmt              go to state 61
+    for_stmt                go to state 62
+    funcdef                 go to state 63
+    classdef                go to state 64
+    parameterized_type      go to state 65
+
+
+State 25
+
+   27 primary: atom .
+
+    $default  reduce using rule 27 (primary)
+
+
+State 26
+
+    5 atom: identifier .
+   97 target: identifier .
+   98       | identifier . type_annotation
+  157 parameterized_type: identifier . type_params
+
+    "::"  shift, and go to state 100
+    "of"  shift, and go to state 101
+
+    "in"      reduce using rule 5 (atom)
+    "in"      [reduce using rule 97 (target)]
+    ')'       reduce using rule 5 (atom)
+    ')'       [reduce using rule 97 (target)]
+    ']'       reduce using rule 5 (atom)
+    ']'       [reduce using rule 97 (target)]
+    ','       reduce using rule 5 (atom)
+    ','       [reduce using rule 97 (target)]
+    '='       reduce using rule 97 (target)
+    $default  reduce using rule 5 (atom)
+
+    type_annotation  go to state 102
+    type_params      go to state 103
+
+
+State 27
+
+    6 atom: literal .
+
+    $default  reduce using rule 6 (atom)
+
+
+State 28
+
+    9 literal: stringliteral .
+   15 stringliteral: stringliteral . STRING
+
+    STRING  shift, and go to state 104
+
+    $default  reduce using rule 9 (literal)
+
+
+State 29
+
+    7 atom: enclosure .
+
+    $default  reduce using rule 7 (atom)
+
+
+State 30
+
+   16 enclosure: parenth_form .
+
+    $default  reduce using rule 16 (enclosure)
+
+
+State 31
+
+   17 enclosure: list_display .
+
+    $default  reduce using rule 17 (enclosure)
+
+
+State 32
+
+   18 enclosure: dict_display .
+
+    $default  reduce using rule 18 (enclosure)
+
+
+State 33
+
+   32 attributeref: primary . '.' identifier
+   34 subscript: primary . '[' expression_or_list ']'
+   35 slice: primary . '[' low_bound ':' high_bound ']'
+   36 subscript_target: primary . '[' expression_or_list ']'
+   37 slice_target: primary . '[' low_bound ':' high_bound ']'
+   42 call: primary . '(' expression_list_opt_comma ')'
+   69 expr3: primary .
+
+    '('  shift, and go to state 105
+    '['  shift, and go to state 106
+    '.'  shift, and go to state 107
+
+    $default  reduce using rule 69 (expr3)
+
+
+State 34
+
+   28 primary: attributeref .
+   99 target: attributeref .
+
+    "in"      reduce using rule 28 (primary)
+    "in"      [reduce using rule 99 (target)]
+    ')'       reduce using rule 28 (primary)
+    ')'       [reduce using rule 99 (target)]
+    ']'       reduce using rule 28 (primary)
+    ']'       [reduce using rule 99 (target)]
+    ','       reduce using rule 28 (primary)
+    ','       [reduce using rule 99 (target)]
+    '='       reduce using rule 99 (target)
+    $default  reduce using rule 28 (primary)
+
+
+State 35
+
+   29 primary: subscript .
+
+    $default  reduce using rule 29 (primary)
+
+
+State 36
+
+   30 primary: slice .
+
+    $default  reduce using rule 30 (primary)
+
+
+State 37
+
+  100 target: subscript_target .
+
+    $default  reduce using rule 100 (target)
+
+
+State 38
+
+  101 target: slice_target .
+
+    $default  reduce using rule 101 (target)
+
+
+State 39
+
+   31 primary: call .
+
+    $default  reduce using rule 31 (primary)
+
+
+State 40
+
+   51 expression_or_list: expression .
+   52                   | expression . ','
+   53                   | expression . ',' expression_list1 opt_comma
+
+    ','  shift, and go to state 108
+
+    $default  reduce using rule 51 (expression_or_list)
+
+
+State 41
+
+   44 expression: conditional_expression .
+
+    $default  reduce using rule 44 (expression)
+
+
+State 42
+
+   45 conditional_expression: expr1 . "if" expr1 "else" expression
+   46                       | expr1 .
+   48 expr1: expr1 . "or" expr1
+   49      | expr1 . "and" expr1
+
+    "and"  shift, and go to state 109
+    "if"   shift, and go to state 110
+    "or"   shift, and go to state 111
+
+    $default  reduce using rule 46 (conditional_expression)
+
+
+State 43
+
+   84 expression_stmt: expression_or_list .
+
+    $default  reduce using rule 84 (expression_stmt)
+
+
+State 44
+
+   47 expr1: expr2 .
+
+    $default  reduce using rule 47 (expr1)
+
+
+State 45
+
+   64 expr2: left_compare . comp_operator expr3
+   68 left_compare: left_compare . comp_operator expr3
+
+    ">="   shift, and go to state 112
+    "<="   shift, and go to state 113
+    "=="   shift, and go to state 114
+    "!="   shift, and go to state 115
+    "in"   shift, and go to state 116
+    "is"   shift, and go to state 117
+    "not"  shift, and go to state 118
+    '<'    shift, and go to state 119
+    '>'    shift, and go to state 120
+
+    comp_operator  go to state 121
+
+
+State 46
+
+   65 expr2: expr3 . comp_operator expr3
+   66      | expr3 .
+   67 left_compare: expr3 . comp_operator expr3
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"   shift, and go to state 122
+    ">="   shift, and go to state 112
+    "<="   shift, and go to state 113
+    "=="   shift, and go to state 114
+    "!="   shift, and go to state 115
+    "in"   shift, and go to state 116
+    "is"   shift, and go to state 117
+    "not"  shift, and go to state 118
+    '<'    shift, and go to state 119
+    '>'    shift, and go to state 120
+    '+'    shift, and go to state 123
+    '-'    shift, and go to state 124
+    '%'    shift, and go to state 125
+    '*'    shift, and go to state 126
+    '/'    shift, and go to state 127
+
+    $default  reduce using rule 66 (expr2)
+
+    comp_operator  go to state 128
+
+
+State 47
+
+  122 stmt_list: simple_stmt . opt_semi
+  124          | simple_stmt . ';' stmt_list
+
+    ';'  shift, and go to state 129
+
+    $default  reduce using rule 170 (opt_semi)
+
+    opt_semi  go to state 130
+
+
+State 48
+
+   78 simple_stmt: expression_stmt .
+
+    $default  reduce using rule 78 (simple_stmt)
+
+
+State 49
+
+   79 simple_stmt: assignment_stmt .
+
+    $default  reduce using rule 79 (simple_stmt)
+
+
+State 50
+
+   85 assignment_stmt: target_list . '=' expression_or_list
+   86                | target_list . '=' assignment_stmt
+
+    '='  shift, and go to state 131
+
+
+State 51
+
+   92 target_list: target_list2 . opt_comma
+   96 target_list2: target_list2 . ',' target
+
+    ','  shift, and go to state 132
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 133
+
+
+State 52
+
+   87 target_list: target .
+   89            | target . ','
+   95 target_list2: target . ',' target
+
+    ','  shift, and go to state 134
+
+    $default  reduce using rule 87 (target_list)
+
+
+State 53
+
+   80 simple_stmt: print_stmt .
+
+    $default  reduce using rule 80 (simple_stmt)
+
+
+State 54
+
+   81 simple_stmt: return_stmt .
+
+    $default  reduce using rule 81 (simple_stmt)
+
+
+State 55
+
+   82 simple_stmt: break_stmt .
+
+    $default  reduce using rule 82 (simple_stmt)
+
+
+State 56
+
+   83 simple_stmt: continue_stmt .
+
+    $default  reduce using rule 83 (simple_stmt)
+
+
+State 57
+
+  120 statement: compound_stmt .
+
+    $default  reduce using rule 120 (statement)
+
+
+State 58
+
+    3 statements: statement .
+
+    $default  reduce using rule 3 (statements)
+
+
+State 59
+
+  119 statement: stmt_list . NEWLINE
+
+    NEWLINE  shift, and go to state 135
+
+
+State 60
+
+  109 compound_stmt: if_stmt .
+
+    $default  reduce using rule 109 (compound_stmt)
+
+
+State 61
+
+  110 compound_stmt: while_stmt .
+
+    $default  reduce using rule 110 (compound_stmt)
+
+
+State 62
+
+  111 compound_stmt: for_stmt .
+
+    $default  reduce using rule 111 (compound_stmt)
+
+
+State 63
+
+  112 compound_stmt: funcdef .
+
+    $default  reduce using rule 112 (compound_stmt)
+
+
+State 64
+
+  113 compound_stmt: classdef .
+
+    $default  reduce using rule 113 (compound_stmt)
+
+
+State 65
+
+   33 attributeref: parameterized_type . '.' identifier
+   43 call: parameterized_type . '(' expression_list_opt_comma ')'
+
+    '('  shift, and go to state 136
+    '.'  shift, and go to state 137
+
+
+State 66
+
+  145 classdef: "class" identifier . type_formals ':' classbody
+
+    "of"  shift, and go to state 138
+
+    $default  reduce using rule 146 (type_formals)
+
+    type_formals  go to state 139
+
+
+State 67
+
+  144 funcname: identifier .
+
+    $default  reduce using rule 144 (funcname)
+
+
+State 68
+
+  132 funcdef: "def" funcname . parameter_list type_annotation ':' funcbody
+  133        | "def" funcname . parameter_list ':' funcbody
+
+    '('  shift, and go to state 140
+
+    parameter_list  go to state 141
+
+
+State 69
+
+   32 attributeref: primary . '.' identifier
+   34 subscript: primary . '[' expression_or_list ']'
+   35 slice: primary . '[' low_bound ':' high_bound ']'
+   36 subscript_target: primary . '[' expression_or_list ']'
+   37 slice_target: primary . '[' low_bound ':' high_bound ']'
+   42 call: primary . '(' expression_list_opt_comma ')'
+
+    '('  shift, and go to state 105
+    '['  shift, and go to state 106
+    '.'  shift, and go to state 107
+
+
+State 70
+
+  131 for_stmt: "for" target_list . "in" expression_or_list ':' suite else_clause
+
+    "in"  shift, and go to state 142
+
+
+State 71
+
+   19 parenth_form: '(' . ')'
+   20             | '(' . expression_or_list ')'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    ')'      shift, and go to state 86
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 87
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 72
+
+   21 list_display: '[' . expression_list_opt_comma ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 166 (expression_list_opt_comma)
+
+    atom                       go to state 25
+    identifier                 go to state 73
+    literal                    go to state 27
+    stringliteral              go to state 28
+    enclosure                  go to state 29
+    parenth_form               go to state 30
+    list_display               go to state 31
+    dict_display               go to state 32
+    primary                    go to state 74
+    attributeref               go to state 75
+    subscript                  go to state 35
+    slice                      go to state 36
+    call                       go to state 39
+    expression                 go to state 80
+    conditional_expression     go to state 41
+    expr1                      go to state 42
+    expr2                      go to state 44
+    left_compare               go to state 45
+    expr3                      go to state 46
+    parameterized_type         go to state 65
+    expression_list1           go to state 92
+    expression_list_opt_comma  go to state 93
+
+
+State 73
+
+    5 atom: identifier .
+  157 parameterized_type: identifier . type_params
+
+    "of"  shift, and go to state 101
+
+    $default  reduce using rule 5 (atom)
+
+    type_params  go to state 103
+
+
+State 74
+
+   32 attributeref: primary . '.' identifier
+   34 subscript: primary . '[' expression_or_list ']'
+   35 slice: primary . '[' low_bound ':' high_bound ']'
+   42 call: primary . '(' expression_list_opt_comma ')'
+   69 expr3: primary .
+
+    '('  shift, and go to state 105
+    '['  shift, and go to state 143
+    '.'  shift, and go to state 107
+
+    $default  reduce using rule 69 (expr3)
+
+
+State 75
+
+   28 primary: attributeref .
+
+    $default  reduce using rule 28 (primary)
+
+
+State 76
+
+  125 if_stmt: "if" expression . ':' suite elifs
+
+    ':'  shift, and go to state 144
+
+
+State 77
+
+   48 expr1: expr1 . "or" expr1
+   49      | expr1 . "and" expr1
+   50      | "not" expr1 .
+
+    $default  reduce using rule 50 (expr1)
+
+
+State 78
+
+  123 stmt_list: "pass" ';' . stmt_list
+  171 opt_semi: ';' .
+
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    $default  reduce using rule 171 (opt_semi)
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    stmt_list               go to state 145
+    parameterized_type      go to state 65
+
+
+State 79
+
+  121 stmt_list: "pass" opt_semi .
+
+    $default  reduce using rule 121 (stmt_list)
+
+
+State 80
+
+  164 expression_list1: expression .
+
+    $default  reduce using rule 164 (expression_list1)
+
+
+State 81
+
+  102 print_stmt: "print" expression_list1 .
+  104           | "print" expression_list1 . ','
+  165 expression_list1: expression_list1 . ',' expression
+
+    ','  shift, and go to state 146
+
+    $default  reduce using rule 102 (print_stmt)
+
+
+State 82
+
+  105 return_stmt: "return" expression_or_list .
+
+    $default  reduce using rule 105 (return_stmt)
+
+
+State 83
+
+  130 while_stmt: "while" expression . ':' suite else_clause
+
+    ':'  shift, and go to state 147
+
+
+State 84
+
+   71 expr3: '+' expr3 .
+   72      | expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 71 (expr3)
+
+
+State 85
+
+   70 expr3: '-' expr3 .
+   72      | expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 70 (expr3)
+
+
+State 86
+
+   19 parenth_form: '(' ')' .
+
+    $default  reduce using rule 19 (parenth_form)
+
+
+State 87
+
+   20 parenth_form: '(' expression_or_list . ')'
+
+    ')'  shift, and go to state 148
+
+
+State 88
+
+   93 target_list: '(' target_list2 . ')'
+   96 target_list2: target_list2 . ',' target
+
+    ')'  shift, and go to state 149
+    ','  shift, and go to state 150
+
+
+State 89
+
+   88 target_list: '(' target . ')'
+   90            | '(' target . ',' ')'
+   95 target_list2: target . ',' target
+
+    ')'  shift, and go to state 151
+    ','  shift, and go to state 152
+
+
+State 90
+
+   94 target_list: '[' target_list2 . opt_comma ']'
+   96 target_list2: target_list2 . ',' target
+
+    ','  shift, and go to state 132
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 153
+
+
+State 91
+
+   91 target_list: '[' target . opt_comma ']'
+   95 target_list2: target . ',' target
+
+    ','  shift, and go to state 154
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 155
+
+
+State 92
+
+  165 expression_list1: expression_list1 . ',' expression
+  167 expression_list_opt_comma: expression_list1 . opt_comma
+
+    ','  shift, and go to state 156
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 157
+
+
+State 93
+
+   21 list_display: '[' expression_list_opt_comma . ']'
+
+    ']'  shift, and go to state 158
+
+
+State 94
+
+   23 dict_display: '{' '}' .
+
+    $default  reduce using rule 23 (dict_display)
+
+
+State 95
+
+   22 dict_display: '{' key_datum_list1 . opt_comma '}'
+   25 key_datum_list1: key_datum_list1 . ',' key_datum
+
+    ','  shift, and go to state 159
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 160
+
+
+State 96
+
+   24 key_datum_list1: key_datum .
+
+    $default  reduce using rule 24 (key_datum_list1)
+
+
+State 97
+
+   26 key_datum: expression . ':' expression
+
+    ':'  shift, and go to state 161
+
+
+State 98
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 99
+
+    4 statements: statements statement .
+
+    $default  reduce using rule 4 (statements)
+
+
+State 100
+
+  151 type_annotation: "::" . type
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+
+    identifier          go to state 164
+    type                go to state 165
+    type_var            go to state 166
+    parameterized_type  go to state 167
+
+
+State 101
+
+  158 type_params: "of" . '[' types ']'
+  159            | "of" . type
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+    '['       shift, and go to state 168
+
+    identifier          go to state 164
+    type                go to state 169
+    type_var            go to state 166
+    parameterized_type  go to state 167
+
+
+State 102
+
+   98 target: identifier type_annotation .
+
+    $default  reduce using rule 98 (target)
+
+
+State 103
+
+  157 parameterized_type: identifier type_params .
+
+    $default  reduce using rule 157 (parameterized_type)
+
+
+State 104
+
+   15 stringliteral: stringliteral STRING .
+
+    $default  reduce using rule 15 (stringliteral)
+
+
+State 105
+
+   42 call: primary '(' . expression_list_opt_comma ')'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 166 (expression_list_opt_comma)
+
+    atom                       go to state 25
+    identifier                 go to state 73
+    literal                    go to state 27
+    stringliteral              go to state 28
+    enclosure                  go to state 29
+    parenth_form               go to state 30
+    list_display               go to state 31
+    dict_display               go to state 32
+    primary                    go to state 74
+    attributeref               go to state 75
+    subscript                  go to state 35
+    slice                      go to state 36
+    call                       go to state 39
+    expression                 go to state 80
+    conditional_expression     go to state 41
+    expr1                      go to state 42
+    expr2                      go to state 44
+    left_compare               go to state 45
+    expr3                      go to state 46
+    parameterized_type         go to state 65
+    expression_list1           go to state 92
+    expression_list_opt_comma  go to state 170
+
+
+State 106
+
+   34 subscript: primary '[' . expression_or_list ']'
+   35 slice: primary '[' . low_bound ':' high_bound ']'
+   36 subscript_target: primary '[' . expression_or_list ']'
+   37 slice_target: primary '[' . low_bound ':' high_bound ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 39 (low_bound)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    low_bound               go to state 171
+    call                    go to state 39
+    expression              go to state 172
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 173
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 107
+
+   32 attributeref: primary '.' . identifier
+
+    ID  shift, and go to state 1
+
+    identifier  go to state 174
+
+
+State 108
+
+   52 expression_or_list: expression ',' .
+   53                   | expression ',' . expression_list1 opt_comma
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 52 (expression_or_list)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 80
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+    expression_list1        go to state 175
+
+
+State 109
+
+   49 expr1: expr1 "and" . expr1
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr1               go to state 176
+    expr2               go to state 44
+    left_compare        go to state 45
+    expr3               go to state 46
+    parameterized_type  go to state 65
+
+
+State 110
+
+   45 conditional_expression: expr1 "if" . expr1 "else" expression
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr1               go to state 177
+    expr2               go to state 44
+    left_compare        go to state 45
+    expr3               go to state 46
+    parameterized_type  go to state 65
+
+
+State 111
+
+   48 expr1: expr1 "or" . expr1
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr1               go to state 178
+    expr2               go to state 44
+    left_compare        go to state 45
+    expr3               go to state 46
+    parameterized_type  go to state 65
+
+
+State 112
+
+   56 comp_operator: ">=" .
+
+    $default  reduce using rule 56 (comp_operator)
+
+
+State 113
+
+   57 comp_operator: "<=" .
+
+    $default  reduce using rule 57 (comp_operator)
+
+
+State 114
+
+   58 comp_operator: "==" .
+
+    $default  reduce using rule 58 (comp_operator)
+
+
+State 115
+
+   59 comp_operator: "!=" .
+
+    $default  reduce using rule 59 (comp_operator)
+
+
+State 116
+
+   60 comp_operator: "in" .
+
+    $default  reduce using rule 60 (comp_operator)
+
+
+State 117
+
+   61 comp_operator: "is" .
+   63              | "is" . "not"
+
+    "not"  shift, and go to state 179
+
+    $default  reduce using rule 61 (comp_operator)
+
+
+State 118
+
+   62 comp_operator: "not" . "in"
+
+    "in"  shift, and go to state 180
+
+
+State 119
+
+   55 comp_operator: '<' .
+
+    $default  reduce using rule 55 (comp_operator)
+
+
+State 120
+
+   54 comp_operator: '>' .
+
+    $default  reduce using rule 54 (comp_operator)
+
+
+State 121
+
+   64 expr2: left_compare comp_operator . expr3
+   68 left_compare: left_compare comp_operator . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 181
+    parameterized_type  go to state 65
+
+
+State 122
+
+   77 expr3: expr3 "**" . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 182
+    parameterized_type  go to state 65
+
+
+State 123
+
+   72 expr3: expr3 '+' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 183
+    parameterized_type  go to state 65
+
+
+State 124
+
+   73 expr3: expr3 '-' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 184
+    parameterized_type  go to state 65
+
+
+State 125
+
+   76 expr3: expr3 '%' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 185
+    parameterized_type  go to state 65
+
+
+State 126
+
+   74 expr3: expr3 '*' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 186
+    parameterized_type  go to state 65
+
+
+State 127
+
+   75 expr3: expr3 '/' . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 187
+    parameterized_type  go to state 65
+
+
+State 128
+
+   65 expr2: expr3 comp_operator . expr3
+   67 left_compare: expr3 comp_operator . expr3
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 73
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 74
+    attributeref        go to state 75
+    subscript           go to state 35
+    slice               go to state 36
+    call                go to state 39
+    expr3               go to state 188
+    parameterized_type  go to state 65
+
+
+State 129
+
+  124 stmt_list: simple_stmt ';' . stmt_list
+  171 opt_semi: ';' .
+
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    $default  reduce using rule 171 (opt_semi)
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    stmt_list               go to state 189
+    parameterized_type      go to state 65
+
+
+State 130
+
+  122 stmt_list: simple_stmt opt_semi .
+
+    $default  reduce using rule 122 (stmt_list)
+
+
+State 131
+
+   85 assignment_stmt: target_list '=' . expression_or_list
+   86                | target_list '=' . assignment_stmt
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 20
+    '['      shift, and go to state 21
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 190
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    assignment_stmt         go to state 191
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    parameterized_type      go to state 65
+
+
+State 132
+
+   96 target_list2: target_list2 ',' . target
+  169 opt_comma: ',' .
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 169 (opt_comma)
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target              go to state 192
+    parameterized_type  go to state 65
+
+
+State 133
+
+   92 target_list: target_list2 opt_comma .
+
+    $default  reduce using rule 92 (target_list)
+
+
+State 134
+
+   89 target_list: target ',' .
+   95 target_list2: target ',' . target
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 89 (target_list)
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target              go to state 193
+    parameterized_type  go to state 65
+
+
+State 135
+
+  119 statement: stmt_list NEWLINE .
+
+    $default  reduce using rule 119 (statement)
+
+
+State 136
+
+   43 call: parameterized_type '(' . expression_list_opt_comma ')'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 166 (expression_list_opt_comma)
+
+    atom                       go to state 25
+    identifier                 go to state 73
+    literal                    go to state 27
+    stringliteral              go to state 28
+    enclosure                  go to state 29
+    parenth_form               go to state 30
+    list_display               go to state 31
+    dict_display               go to state 32
+    primary                    go to state 74
+    attributeref               go to state 75
+    subscript                  go to state 35
+    slice                      go to state 36
+    call                       go to state 39
+    expression                 go to state 80
+    conditional_expression     go to state 41
+    expr1                      go to state 42
+    expr2                      go to state 44
+    left_compare               go to state 45
+    expr3                      go to state 46
+    parameterized_type         go to state 65
+    expression_list1           go to state 92
+    expression_list_opt_comma  go to state 194
+
+
+State 137
+
+   33 attributeref: parameterized_type '.' . identifier
+
+    ID  shift, and go to state 1
+
+    identifier  go to state 195
+
+
+State 138
+
+  147 type_formals: "of" . '[' type_var_list1 ']'
+
+    '['  shift, and go to state 196
+
+
+State 139
+
+  145 classdef: "class" identifier type_formals . ':' classbody
+
+    ':'  shift, and go to state 197
+
+
+State 140
+
+  138 parameter_list: '(' . ')'
+  139               | '(' . parameters1 opt_comma ')'
+
+    ID   shift, and go to state 1
+    ')'  shift, and go to state 198
+
+    identifier   go to state 199
+    parameters1  go to state 200
+    parameter    go to state 201
+
+
+State 141
+
+  132 funcdef: "def" funcname parameter_list . type_annotation ':' funcbody
+  133        | "def" funcname parameter_list . ':' funcbody
+
+    "::"  shift, and go to state 100
+    ':'   shift, and go to state 202
+
+    type_annotation  go to state 203
+
+
+State 142
+
+  131 for_stmt: "for" target_list "in" . expression_or_list ':' suite else_clause
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 204
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 143
+
+   34 subscript: primary '[' . expression_or_list ']'
+   35 slice: primary '[' . low_bound ':' high_bound ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 39 (low_bound)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    low_bound               go to state 205
+    call                    go to state 39
+    expression              go to state 172
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 206
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 144
+
+  125 if_stmt: "if" expression ':' . suite elifs
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite                   go to state 209
+    suite_stmts             go to state 210
+    stmt_list               go to state 211
+    parameterized_type      go to state 65
+
+
+State 145
+
+  123 stmt_list: "pass" ';' stmt_list .
+
+    $default  reduce using rule 123 (stmt_list)
+
+
+State 146
+
+  104 print_stmt: "print" expression_list1 ',' .
+  165 expression_list1: expression_list1 ',' . expression
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 104 (print_stmt)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 212
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 147
+
+  130 while_stmt: "while" expression ':' . suite else_clause
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite                   go to state 213
+    suite_stmts             go to state 210
+    stmt_list               go to state 211
+    parameterized_type      go to state 65
+
+
+State 148
+
+   20 parenth_form: '(' expression_or_list ')' .
+
+    $default  reduce using rule 20 (parenth_form)
+
+
+State 149
+
+   93 target_list: '(' target_list2 ')' .
+
+    $default  reduce using rule 93 (target_list)
+
+
+State 150
+
+   96 target_list2: target_list2 ',' . target
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target              go to state 192
+    parameterized_type  go to state 65
+
+
+State 151
+
+   88 target_list: '(' target ')' .
+
+    $default  reduce using rule 88 (target_list)
+
+
+State 152
+
+   90 target_list: '(' target ',' . ')'
+   95 target_list2: target ',' . target
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 71
+    ')'      shift, and go to state 214
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target              go to state 193
+    parameterized_type  go to state 65
+
+
+State 153
+
+   94 target_list: '[' target_list2 opt_comma . ']'
+
+    ']'  shift, and go to state 215
+
+
+State 154
+
+   95 target_list2: target ',' . target
+  169 opt_comma: ',' .
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "True"   shift, and go to state 16
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 169 (opt_comma)
+
+    atom                go to state 25
+    identifier          go to state 26
+    literal             go to state 27
+    stringliteral       go to state 28
+    enclosure           go to state 29
+    parenth_form        go to state 30
+    list_display        go to state 31
+    dict_display        go to state 32
+    primary             go to state 69
+    attributeref        go to state 34
+    subscript           go to state 35
+    slice               go to state 36
+    subscript_target    go to state 37
+    slice_target        go to state 38
+    call                go to state 39
+    target              go to state 193
+    parameterized_type  go to state 65
+
+
+State 155
+
+   91 target_list: '[' target opt_comma . ']'
+
+    ']'  shift, and go to state 216
+
+
+State 156
+
+  165 expression_list1: expression_list1 ',' . expression
+  169 opt_comma: ',' .
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 169 (opt_comma)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 212
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 157
+
+  167 expression_list_opt_comma: expression_list1 opt_comma .
+
+    $default  reduce using rule 167 (expression_list_opt_comma)
+
+
+State 158
+
+   21 list_display: '[' expression_list_opt_comma ']' .
+
+    $default  reduce using rule 21 (list_display)
+
+
+State 159
+
+   25 key_datum_list1: key_datum_list1 ',' . key_datum
+  169 opt_comma: ',' .
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 169 (opt_comma)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    key_datum               go to state 217
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 97
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 160
+
+   22 dict_display: '{' key_datum_list1 opt_comma . '}'
+
+    '}'  shift, and go to state 218
+
+
+State 161
+
+   26 key_datum: expression ':' . expression
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 219
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 162
+
+  156 type_var: TYPE_VAR .
+
+    $default  reduce using rule 156 (type_var)
+
+
+State 163
+
+  155 type: '(' . type_list ')' "->" type
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+
+    $default  reduce using rule 160 (type_list)
+
+    identifier          go to state 164
+    type                go to state 220
+    type_var            go to state 166
+    parameterized_type  go to state 167
+    type_list           go to state 221
+    types               go to state 222
+
+
+State 164
+
+  153 type: identifier .
+  157 parameterized_type: identifier . type_params
+
+    "of"  shift, and go to state 101
+
+    $default  reduce using rule 153 (type)
+
+    type_params  go to state 103
+
+
+State 165
+
+  151 type_annotation: "::" type .
+
+    $default  reduce using rule 151 (type_annotation)
+
+
+State 166
+
+  154 type: type_var .
+
+    $default  reduce using rule 154 (type)
+
+
+State 167
+
+  152 type: parameterized_type .
+
+    $default  reduce using rule 152 (type)
+
+
+State 168
+
+  158 type_params: "of" '[' . types ']'
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+
+    identifier          go to state 164
+    type                go to state 220
+    type_var            go to state 166
+    parameterized_type  go to state 167
+    types               go to state 223
+
+
+State 169
+
+  159 type_params: "of" type .
+
+    $default  reduce using rule 159 (type_params)
+
+
+State 170
+
+   42 call: primary '(' expression_list_opt_comma . ')'
+
+    ')'  shift, and go to state 224
+
+
+State 171
+
+   35 slice: primary '[' low_bound . ':' high_bound ']'
+   37 slice_target: primary '[' low_bound . ':' high_bound ']'
+
+    ':'  shift, and go to state 225
+
+
+State 172
+
+   38 low_bound: expression .
+   51 expression_or_list: expression .
+   52                   | expression . ','
+   53                   | expression . ',' expression_list1 opt_comma
+
+    ','  shift, and go to state 108
+
+    ']'       reduce using rule 51 (expression_or_list)
+    $default  reduce using rule 38 (low_bound)
+
+
+State 173
+
+   34 subscript: primary '[' expression_or_list . ']'
+   36 subscript_target: primary '[' expression_or_list . ']'
+
+    ']'  shift, and go to state 226
+
+
+State 174
+
+   32 attributeref: primary '.' identifier .
+
+    $default  reduce using rule 32 (attributeref)
+
+
+State 175
+
+   53 expression_or_list: expression ',' expression_list1 . opt_comma
+  165 expression_list1: expression_list1 . ',' expression
+
+    ','  shift, and go to state 156
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 227
+
+
+State 176
+
+   48 expr1: expr1 . "or" expr1
+   49      | expr1 . "and" expr1
+   49      | expr1 "and" expr1 .
+
+    $default  reduce using rule 49 (expr1)
+
+
+State 177
+
+   45 conditional_expression: expr1 "if" expr1 . "else" expression
+   48 expr1: expr1 . "or" expr1
+   49      | expr1 . "and" expr1
+
+    "and"   shift, and go to state 109
+    "else"  shift, and go to state 228
+    "or"    shift, and go to state 111
+
+
+State 178
+
+   48 expr1: expr1 . "or" expr1
+   48      | expr1 "or" expr1 .
+   49      | expr1 . "and" expr1
+
+    "and"  shift, and go to state 109
+
+    $default  reduce using rule 48 (expr1)
+
+
+State 179
+
+   63 comp_operator: "is" "not" .
+
+    $default  reduce using rule 63 (comp_operator)
+
+
+State 180
+
+   62 comp_operator: "not" "in" .
+
+    $default  reduce using rule 62 (comp_operator)
+
+
+State 181
+
+   64 expr2: left_compare comp_operator expr3 .
+   68 left_compare: left_compare comp_operator expr3 .
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+    '+'   shift, and go to state 123
+    '-'   shift, and go to state 124
+    '%'   shift, and go to state 125
+    '*'   shift, and go to state 126
+    '/'   shift, and go to state 127
+
+    ">="      reduce using rule 68 (left_compare)
+    "<="      reduce using rule 68 (left_compare)
+    "=="      reduce using rule 68 (left_compare)
+    "!="      reduce using rule 68 (left_compare)
+    "in"      reduce using rule 68 (left_compare)
+    "is"      reduce using rule 68 (left_compare)
+    "not"     reduce using rule 68 (left_compare)
+    '<'       reduce using rule 68 (left_compare)
+    '>'       reduce using rule 68 (left_compare)
+    $default  reduce using rule 64 (expr2)
+
+
+State 182
+
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+   77      | expr3 "**" expr3 .
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 77 (expr3)
+
+
+State 183
+
+   72 expr3: expr3 . '+' expr3
+   72      | expr3 '+' expr3 .
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+    '%'   shift, and go to state 125
+    '*'   shift, and go to state 126
+    '/'   shift, and go to state 127
+
+    $default  reduce using rule 72 (expr3)
+
+
+State 184
+
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   73      | expr3 '-' expr3 .
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+    '%'   shift, and go to state 125
+    '*'   shift, and go to state 126
+    '/'   shift, and go to state 127
+
+    $default  reduce using rule 73 (expr3)
+
+
+State 185
+
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   76      | expr3 '%' expr3 .
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 76 (expr3)
+
+
+State 186
+
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   74      | expr3 '*' expr3 .
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 74 (expr3)
+
+
+State 187
+
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   75      | expr3 '/' expr3 .
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+
+    $default  reduce using rule 75 (expr3)
+
+
+State 188
+
+   65 expr2: expr3 comp_operator expr3 .
+   67 left_compare: expr3 comp_operator expr3 .
+   72 expr3: expr3 . '+' expr3
+   73      | expr3 . '-' expr3
+   74      | expr3 . '*' expr3
+   75      | expr3 . '/' expr3
+   76      | expr3 . '%' expr3
+   77      | expr3 . "**" expr3
+
+    "**"  shift, and go to state 122
+    '+'   shift, and go to state 123
+    '-'   shift, and go to state 124
+    '%'   shift, and go to state 125
+    '*'   shift, and go to state 126
+    '/'   shift, and go to state 127
+
+    ">="      reduce using rule 67 (left_compare)
+    "<="      reduce using rule 67 (left_compare)
+    "=="      reduce using rule 67 (left_compare)
+    "!="      reduce using rule 67 (left_compare)
+    "in"      reduce using rule 67 (left_compare)
+    "is"      reduce using rule 67 (left_compare)
+    "not"     reduce using rule 67 (left_compare)
+    '<'       reduce using rule 67 (left_compare)
+    '>'       reduce using rule 67 (left_compare)
+    $default  reduce using rule 65 (expr2)
+
+
+State 189
+
+  124 stmt_list: simple_stmt ';' stmt_list .
+
+    $default  reduce using rule 124 (stmt_list)
+
+
+State 190
+
+   85 assignment_stmt: target_list '=' expression_or_list .
+
+    $default  reduce using rule 85 (assignment_stmt)
+
+
+State 191
+
+   86 assignment_stmt: target_list '=' assignment_stmt .
+
+    $default  reduce using rule 86 (assignment_stmt)
+
+
+State 192
+
+   96 target_list2: target_list2 ',' target .
+
+    $default  reduce using rule 96 (target_list2)
+
+
+State 193
+
+   95 target_list2: target ',' target .
+
+    $default  reduce using rule 95 (target_list2)
+
+
+State 194
+
+   43 call: parameterized_type '(' expression_list_opt_comma . ')'
+
+    ')'  shift, and go to state 229
+
+
+State 195
+
+   33 attributeref: parameterized_type '.' identifier .
+
+    $default  reduce using rule 33 (attributeref)
+
+
+State 196
+
+  147 type_formals: "of" '[' . type_var_list1 ']'
+
+    TYPE_VAR  shift, and go to state 162
+
+    type_var_list1  go to state 230
+    type_var        go to state 231
+
+
+State 197
+
+  145 classdef: "class" identifier type_formals ':' . classbody
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite_stmts             go to state 232
+    stmt_list               go to state 211
+    classbody               go to state 233
+    parameterized_type      go to state 65
+
+
+State 198
+
+  138 parameter_list: '(' ')' .
+
+    $default  reduce using rule 138 (parameter_list)
+
+
+State 199
+
+  142 parameter: identifier .
+  143          | identifier . type_annotation
+
+    "::"  shift, and go to state 100
+
+    $default  reduce using rule 142 (parameter)
+
+    type_annotation  go to state 234
+
+
+State 200
+
+  139 parameter_list: '(' parameters1 . opt_comma ')'
+  141 parameters1: parameters1 . ',' parameter
+
+    ','  shift, and go to state 235
+
+    $default  reduce using rule 168 (opt_comma)
+
+    opt_comma  go to state 236
+
+
+State 201
+
+  140 parameters1: parameter .
+
+    $default  reduce using rule 140 (parameters1)
+
+
+State 202
+
+  133 funcdef: "def" funcname parameter_list ':' . funcbody
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 237
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "native"    shift, and go to state 238
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite_stmts             go to state 239
+    stmt_list               go to state 211
+    funcbody                go to state 240
+    native                  go to state 241
+    parameterized_type      go to state 65
+
+
+State 203
+
+  132 funcdef: "def" funcname parameter_list type_annotation . ':' funcbody
+
+    ':'  shift, and go to state 242
+
+
+State 204
+
+  131 for_stmt: "for" target_list "in" expression_or_list . ':' suite else_clause
+
+    ':'  shift, and go to state 243
+
+
+State 205
+
+   35 slice: primary '[' low_bound . ':' high_bound ']'
+
+    ':'  shift, and go to state 244
+
+
+State 206
+
+   34 subscript: primary '[' expression_or_list . ']'
+
+    ']'  shift, and go to state 245
+
+
+State 207
+
+  117 suite_stmts: error . NEWLINE
+
+    NEWLINE  shift, and go to state 246
+
+
+State 208
+
+  116 suite_stmts: NEWLINE . INDENT statements DEDENT
+  118            | NEWLINE . INDENT error DEDENT
+
+    INDENT  shift, and go to state 247
+
+
+State 209
+
+  125 if_stmt: "if" expression ':' suite . elifs
+
+    "elif"  shift, and go to state 248
+    "else"  shift, and go to state 249
+
+    $default  reduce using rule 128 (else_clause)
+
+    elifs        go to state 250
+    else_clause  go to state 251
+
+
+State 210
+
+  114 suite: suite_stmts .
+
+    $default  reduce using rule 114 (suite)
+
+
+State 211
+
+  115 suite_stmts: stmt_list . NEWLINE
+
+    NEWLINE  shift, and go to state 252
+
+
+State 212
+
+  165 expression_list1: expression_list1 ',' expression .
+
+    $default  reduce using rule 165 (expression_list1)
+
+
+State 213
+
+  130 while_stmt: "while" expression ':' suite . else_clause
+
+    "else"  shift, and go to state 249
+
+    $default  reduce using rule 128 (else_clause)
+
+    else_clause  go to state 253
+
+
+State 214
+
+   90 target_list: '(' target ',' ')' .
+
+    $default  reduce using rule 90 (target_list)
+
+
+State 215
+
+   94 target_list: '[' target_list2 opt_comma ']' .
+
+    $default  reduce using rule 94 (target_list)
+
+
+State 216
+
+   91 target_list: '[' target opt_comma ']' .
+
+    $default  reduce using rule 91 (target_list)
+
+
+State 217
+
+   25 key_datum_list1: key_datum_list1 ',' key_datum .
+
+    $default  reduce using rule 25 (key_datum_list1)
+
+
+State 218
+
+   22 dict_display: '{' key_datum_list1 opt_comma '}' .
+
+    $default  reduce using rule 22 (dict_display)
+
+
+State 219
+
+   26 key_datum: expression ':' expression .
+
+    $default  reduce using rule 26 (key_datum)
+
+
+State 220
+
+  162 types: type .
+
+    $default  reduce using rule 162 (types)
+
+
+State 221
+
+  155 type: '(' type_list . ')' "->" type
+
+    ')'  shift, and go to state 254
+
+
+State 222
+
+  161 type_list: types .
+  163 types: types . ',' type
+
+    ','  shift, and go to state 255
+
+    $default  reduce using rule 161 (type_list)
+
+
+State 223
+
+  158 type_params: "of" '[' types . ']'
+  163 types: types . ',' type
+
+    ']'  shift, and go to state 256
+    ','  shift, and go to state 255
+
+
+State 224
+
+   42 call: primary '(' expression_list_opt_comma ')' .
+
+    $default  reduce using rule 42 (call)
+
+
+State 225
+
+   35 slice: primary '[' low_bound ':' . high_bound ']'
+   37 slice_target: primary '[' low_bound ':' . high_bound ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 41 (high_bound)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    high_bound              go to state 257
+    call                    go to state 39
+    expression              go to state 258
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 226
+
+   34 subscript: primary '[' expression_or_list ']' .
+   36 subscript_target: primary '[' expression_or_list ']' .
+
+    "in"      reduce using rule 34 (subscript)
+    "in"      [reduce using rule 36 (subscript_target)]
+    ')'       reduce using rule 34 (subscript)
+    ')'       [reduce using rule 36 (subscript_target)]
+    ']'       reduce using rule 34 (subscript)
+    ']'       [reduce using rule 36 (subscript_target)]
+    ','       reduce using rule 34 (subscript)
+    ','       [reduce using rule 36 (subscript_target)]
+    '='       reduce using rule 36 (subscript_target)
+    $default  reduce using rule 34 (subscript)
+
+
+State 227
+
+   53 expression_or_list: expression ',' expression_list1 opt_comma .
+
+    $default  reduce using rule 53 (expression_or_list)
+
+
+State 228
+
+   45 conditional_expression: expr1 "if" expr1 "else" . expression
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 259
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 229
+
+   43 call: parameterized_type '(' expression_list_opt_comma ')' .
+
+    $default  reduce using rule 43 (call)
+
+
+State 230
+
+  147 type_formals: "of" '[' type_var_list1 . ']'
+  149 type_var_list1: type_var_list1 . ',' type_var
+
+    ']'  shift, and go to state 260
+    ','  shift, and go to state 261
+
+
+State 231
+
+  148 type_var_list1: type_var .
+
+    $default  reduce using rule 148 (type_var_list1)
+
+
+State 232
+
+  150 classbody: suite_stmts .
+
+    $default  reduce using rule 150 (classbody)
+
+
+State 233
+
+  145 classdef: "class" identifier type_formals ':' classbody .
+
+    $default  reduce using rule 145 (classdef)
+
+
+State 234
+
+  143 parameter: identifier type_annotation .
+
+    $default  reduce using rule 143 (parameter)
+
+
+State 235
+
+  141 parameters1: parameters1 ',' . parameter
+  169 opt_comma: ',' .
+
+    ID  shift, and go to state 1
+
+    $default  reduce using rule 169 (opt_comma)
+
+    identifier  go to state 199
+    parameter   go to state 262
+
+
+State 236
+
+  139 parameter_list: '(' parameters1 opt_comma . ')'
+
+    ')'  shift, and go to state 263
+
+
+State 237
+
+  116 suite_stmts: NEWLINE . INDENT statements DEDENT
+  118            | NEWLINE . INDENT error DEDENT
+  136 funcbody: NEWLINE . INDENT native opt_semi DEDENT
+
+    INDENT  shift, and go to state 264
+
+
+State 238
+
+  137 native: "native" . stringliteral NEWLINE
+
+    STRING  shift, and go to state 2
+
+    stringliteral  go to state 265
+
+
+State 239
+
+  134 funcbody: suite_stmts .
+
+    $default  reduce using rule 134 (funcbody)
+
+
+State 240
+
+  133 funcdef: "def" funcname parameter_list ':' funcbody .
+
+    $default  reduce using rule 133 (funcdef)
+
+
+State 241
+
+  135 funcbody: native . opt_semi
+
+    ';'  shift, and go to state 266
+
+    $default  reduce using rule 170 (opt_semi)
+
+    opt_semi  go to state 267
+
+
+State 242
+
+  132 funcdef: "def" funcname parameter_list type_annotation ':' . funcbody
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 237
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "native"    shift, and go to state 238
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite_stmts             go to state 239
+    stmt_list               go to state 211
+    funcbody                go to state 268
+    native                  go to state 241
+    parameterized_type      go to state 65
+
+
+State 243
+
+  131 for_stmt: "for" target_list "in" expression_or_list ':' . suite else_clause
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite                   go to state 269
+    suite_stmts             go to state 210
+    stmt_list               go to state 211
+    parameterized_type      go to state 65
+
+
+State 244
+
+   35 slice: primary '[' low_bound ':' . high_bound ']'
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    $default  reduce using rule 41 (high_bound)
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    high_bound              go to state 270
+    call                    go to state 39
+    expression              go to state 258
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 245
+
+   34 subscript: primary '[' expression_or_list ']' .
+
+    $default  reduce using rule 34 (subscript)
+
+
+State 246
+
+  117 suite_stmts: error NEWLINE .
+
+    $default  reduce using rule 117 (suite_stmts)
+
+
+State 247
+
+  116 suite_stmts: NEWLINE INDENT . statements DEDENT
+  118            | NEWLINE INDENT . error DEDENT
+
+    error       shift, and go to state 271
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "class"     shift, and go to state 5
+    "continue"  shift, and go to state 6
+    "def"       shift, and go to state 7
+    "False"     shift, and go to state 8
+    "for"       shift, and go to state 9
+    "if"        shift, and go to state 10
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    "while"     shift, and go to state 17
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    statements              go to state 272
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    compound_stmt           go to state 57
+    statement               go to state 58
+    stmt_list               go to state 59
+    if_stmt                 go to state 60
+    while_stmt              go to state 61
+    for_stmt                go to state 62
+    funcdef                 go to state 63
+    classdef                go to state 64
+    parameterized_type      go to state 65
+
+
+State 248
+
+  126 elifs: "elif" . expression ':' suite elifs
+
+    ID       shift, and go to state 1
+    STRING   shift, and go to state 2
+    INT      shift, and go to state 3
+    "False"  shift, and go to state 8
+    "None"   shift, and go to state 11
+    "not"    shift, and go to state 12
+    "True"   shift, and go to state 16
+    '+'      shift, and go to state 18
+    '-'      shift, and go to state 19
+    '('      shift, and go to state 71
+    '['      shift, and go to state 72
+    '{'      shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 73
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 74
+    attributeref            go to state 75
+    subscript               go to state 35
+    slice                   go to state 36
+    call                    go to state 39
+    expression              go to state 273
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    parameterized_type      go to state 65
+
+
+State 249
+
+  129 else_clause: "else" . ':' suite
+
+    ':'  shift, and go to state 274
+
+
+State 250
+
+  125 if_stmt: "if" expression ':' suite elifs .
+
+    $default  reduce using rule 125 (if_stmt)
+
+
+State 251
+
+  127 elifs: else_clause .
+
+    $default  reduce using rule 127 (elifs)
+
+
+State 252
+
+  115 suite_stmts: stmt_list NEWLINE .
+
+    $default  reduce using rule 115 (suite_stmts)
+
+
+State 253
+
+  130 while_stmt: "while" expression ':' suite else_clause .
+
+    $default  reduce using rule 130 (while_stmt)
+
+
+State 254
+
+  155 type: '(' type_list ')' . "->" type
+
+    "->"  shift, and go to state 275
+
+
+State 255
+
+  163 types: types ',' . type
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+
+    identifier          go to state 164
+    type                go to state 276
+    type_var            go to state 166
+    parameterized_type  go to state 167
+
+
+State 256
+
+  158 type_params: "of" '[' types ']' .
+
+    $default  reduce using rule 158 (type_params)
+
+
+State 257
+
+   35 slice: primary '[' low_bound ':' high_bound . ']'
+   37 slice_target: primary '[' low_bound ':' high_bound . ']'
+
+    ']'  shift, and go to state 277
+
+
+State 258
+
+   40 high_bound: expression .
+
+    $default  reduce using rule 40 (high_bound)
+
+
+State 259
+
+   45 conditional_expression: expr1 "if" expr1 "else" expression .
+
+    $default  reduce using rule 45 (conditional_expression)
+
+
+State 260
+
+  147 type_formals: "of" '[' type_var_list1 ']' .
+
+    $default  reduce using rule 147 (type_formals)
+
+
+State 261
+
+  149 type_var_list1: type_var_list1 ',' . type_var
+
+    TYPE_VAR  shift, and go to state 162
+
+    type_var  go to state 278
+
+
+State 262
+
+  141 parameters1: parameters1 ',' parameter .
+
+    $default  reduce using rule 141 (parameters1)
+
+
+State 263
+
+  139 parameter_list: '(' parameters1 opt_comma ')' .
+
+    $default  reduce using rule 139 (parameter_list)
+
+
+State 264
+
+  116 suite_stmts: NEWLINE INDENT . statements DEDENT
+  118            | NEWLINE INDENT . error DEDENT
+  136 funcbody: NEWLINE INDENT . native opt_semi DEDENT
+
+    error       shift, and go to state 271
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    "break"     shift, and go to state 4
+    "class"     shift, and go to state 5
+    "continue"  shift, and go to state 6
+    "def"       shift, and go to state 7
+    "False"     shift, and go to state 8
+    "for"       shift, and go to state 9
+    "if"        shift, and go to state 10
+    "native"    shift, and go to state 238
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    "while"     shift, and go to state 17
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    statements              go to state 272
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    compound_stmt           go to state 57
+    statement               go to state 58
+    stmt_list               go to state 59
+    if_stmt                 go to state 60
+    while_stmt              go to state 61
+    for_stmt                go to state 62
+    funcdef                 go to state 63
+    native                  go to state 279
+    classdef                go to state 64
+    parameterized_type      go to state 65
+
+
+State 265
+
+   15 stringliteral: stringliteral . STRING
+  137 native: "native" stringliteral . NEWLINE
+
+    STRING   shift, and go to state 104
+    NEWLINE  shift, and go to state 280
+
+
+State 266
+
+  171 opt_semi: ';' .
+
+    $default  reduce using rule 171 (opt_semi)
+
+
+State 267
+
+  135 funcbody: native opt_semi .
+
+    $default  reduce using rule 135 (funcbody)
+
+
+State 268
+
+  132 funcdef: "def" funcname parameter_list type_annotation ':' funcbody .
+
+    $default  reduce using rule 132 (funcdef)
+
+
+State 269
+
+  131 for_stmt: "for" target_list "in" expression_or_list ':' suite . else_clause
+
+    "else"  shift, and go to state 249
+
+    $default  reduce using rule 128 (else_clause)
+
+    else_clause  go to state 281
+
+
+State 270
+
+   35 slice: primary '[' low_bound ':' high_bound . ']'
+
+    ']'  shift, and go to state 282
+
+
+State 271
+
+  118 suite_stmts: NEWLINE INDENT error . DEDENT
+
+    DEDENT  shift, and go to state 283
+
+
+State 272
+
+    4 statements: statements . statement
+  116 suite_stmts: NEWLINE INDENT statements . DEDENT
+
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    DEDENT      shift, and go to state 284
+    "break"     shift, and go to state 4
+    "class"     shift, and go to state 5
+    "continue"  shift, and go to state 6
+    "def"       shift, and go to state 7
+    "False"     shift, and go to state 8
+    "for"       shift, and go to state 9
+    "if"        shift, and go to state 10
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    "while"     shift, and go to state 17
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    compound_stmt           go to state 57
+    statement               go to state 99
+    stmt_list               go to state 59
+    if_stmt                 go to state 60
+    while_stmt              go to state 61
+    for_stmt                go to state 62
+    funcdef                 go to state 63
+    classdef                go to state 64
+    parameterized_type      go to state 65
+
+
+State 273
+
+  126 elifs: "elif" expression . ':' suite elifs
+
+    ':'  shift, and go to state 285
+
+
+State 274
+
+  129 else_clause: "else" ':' . suite
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite                   go to state 286
+    suite_stmts             go to state 210
+    stmt_list               go to state 211
+    parameterized_type      go to state 65
+
+
+State 275
+
+  155 type: '(' type_list ')' "->" . type
+
+    ID        shift, and go to state 1
+    TYPE_VAR  shift, and go to state 162
+    '('       shift, and go to state 163
+
+    identifier          go to state 164
+    type                go to state 287
+    type_var            go to state 166
+    parameterized_type  go to state 167
+
+
+State 276
+
+  163 types: types ',' type .
+
+    $default  reduce using rule 163 (types)
+
+
+State 277
+
+   35 slice: primary '[' low_bound ':' high_bound ']' .
+   37 slice_target: primary '[' low_bound ':' high_bound ']' .
+
+    "in"      reduce using rule 35 (slice)
+    "in"      [reduce using rule 37 (slice_target)]
+    ')'       reduce using rule 35 (slice)
+    ')'       [reduce using rule 37 (slice_target)]
+    ']'       reduce using rule 35 (slice)
+    ']'       [reduce using rule 37 (slice_target)]
+    ','       reduce using rule 35 (slice)
+    ','       [reduce using rule 37 (slice_target)]
+    '='       reduce using rule 37 (slice_target)
+    $default  reduce using rule 35 (slice)
+
+
+State 278
+
+  149 type_var_list1: type_var_list1 ',' type_var .
+
+    $default  reduce using rule 149 (type_var_list1)
+
+
+State 279
+
+  136 funcbody: NEWLINE INDENT native . opt_semi DEDENT
+
+    ';'  shift, and go to state 266
+
+    $default  reduce using rule 170 (opt_semi)
+
+    opt_semi  go to state 288
+
+
+State 280
+
+  137 native: "native" stringliteral NEWLINE .
+
+    $default  reduce using rule 137 (native)
+
+
+State 281
+
+  131 for_stmt: "for" target_list "in" expression_or_list ':' suite else_clause .
+
+    $default  reduce using rule 131 (for_stmt)
+
+
+State 282
+
+   35 slice: primary '[' low_bound ':' high_bound ']' .
+
+    $default  reduce using rule 35 (slice)
+
+
+State 283
+
+  118 suite_stmts: NEWLINE INDENT error DEDENT .
+
+    $default  reduce using rule 118 (suite_stmts)
+
+
+State 284
+
+  116 suite_stmts: NEWLINE INDENT statements DEDENT .
+
+    $default  reduce using rule 116 (suite_stmts)
+
+
+State 285
+
+  126 elifs: "elif" expression ':' . suite elifs
+
+    error       shift, and go to state 207
+    ID          shift, and go to state 1
+    STRING      shift, and go to state 2
+    INT         shift, and go to state 3
+    NEWLINE     shift, and go to state 208
+    "break"     shift, and go to state 4
+    "continue"  shift, and go to state 6
+    "False"     shift, and go to state 8
+    "None"      shift, and go to state 11
+    "not"       shift, and go to state 12
+    "pass"      shift, and go to state 13
+    "print"     shift, and go to state 14
+    "return"    shift, and go to state 15
+    "True"      shift, and go to state 16
+    '+'         shift, and go to state 18
+    '-'         shift, and go to state 19
+    '('         shift, and go to state 20
+    '['         shift, and go to state 21
+    '{'         shift, and go to state 22
+
+    atom                    go to state 25
+    identifier              go to state 26
+    literal                 go to state 27
+    stringliteral           go to state 28
+    enclosure               go to state 29
+    parenth_form            go to state 30
+    list_display            go to state 31
+    dict_display            go to state 32
+    primary                 go to state 33
+    attributeref            go to state 34
+    subscript               go to state 35
+    slice                   go to state 36
+    subscript_target        go to state 37
+    slice_target            go to state 38
+    call                    go to state 39
+    expression              go to state 40
+    conditional_expression  go to state 41
+    expr1                   go to state 42
+    expression_or_list      go to state 43
+    expr2                   go to state 44
+    left_compare            go to state 45
+    expr3                   go to state 46
+    simple_stmt             go to state 47
+    expression_stmt         go to state 48
+    assignment_stmt         go to state 49
+    target_list             go to state 50
+    target_list2            go to state 51
+    target                  go to state 52
+    print_stmt              go to state 53
+    return_stmt             go to state 54
+    break_stmt              go to state 55
+    continue_stmt           go to state 56
+    suite                   go to state 289
+    suite_stmts             go to state 210
+    stmt_list               go to state 211
+    parameterized_type      go to state 65
+
+
+State 286
+
+  129 else_clause: "else" ':' suite .
+
+    $default  reduce using rule 129 (else_clause)
+
+
+State 287
+
+  155 type: '(' type_list ')' "->" type .
+
+    $default  reduce using rule 155 (type)
+
+
+State 288
+
+  136 funcbody: NEWLINE INDENT native opt_semi . DEDENT
+
+    DEDENT  shift, and go to state 290
+
+
+State 289
+
+  126 elifs: "elif" expression ':' suite . elifs
+
+    "elif"  shift, and go to state 248
+    "else"  shift, and go to state 249
+
+    $default  reduce using rule 128 (else_clause)
+
+    elifs        go to state 291
+    else_clause  go to state 251
+
+
+State 290
+
+  136 funcbody: NEWLINE INDENT native opt_semi DEDENT .
+
+    $default  reduce using rule 136 (funcbody)
+
+
+State 291
+
+  126 elifs: "elif" expression ':' suite elifs .
+
+    $default  reduce using rule 126 (elifs)

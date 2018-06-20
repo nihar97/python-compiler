@@ -1,0 +1,7 @@
+- For (including for else) - Nihar
+- Function calls - Nikhil
+    - Left compare break up pair by pair ((1 < 2)? false: (2 < 3))
+    - (special case if x.f(...), need to pass self)
+- Subscript/Slice/Tuple assign statements
+- Integer optimization - Nikhil/Pranav
+- gc - Nihar

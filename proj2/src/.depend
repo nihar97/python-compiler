@@ -1,0 +1,13 @@
+apyc.o: apyc.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+ast.o: ast.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+post1.o: post1.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+unifier.o: unifier.cc unifier.h apyc.h ast.h ast-types.i environ.h \
+ decls.h
+environ.o: environ.cc apyc.h ast.h ast-types.i unifier.h environ.h \
+ decls.h
+decls.o: decls.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+types.o: types.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+exprs.o: exprs.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+stmts.o: stmts.cc apyc.h ast.h ast-types.i unifier.h environ.h decls.h
+apyc-parser.o: apyc-parser.cc apyc.h ast.h ast-types.i unifier.h \
+ environ.h decls.h apyc-lexer.cc

@@ -1,0 +1,10 @@
+apyc
+*~
+__pycache__
+*.dast
+*.ast
+*.o
+test.py
+test.cc
+test
+!tests

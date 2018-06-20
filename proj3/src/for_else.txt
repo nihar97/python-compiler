@@ -1,0 +1,22 @@
+for <id> in <expr>:
+    <stmt>
+
+{
+    <Type of expr> loop_expr = codegen(<expr>);
+    while(true) {
+        <Type of id> loop_var = __choose___<index>(loop_expr);
+        (if loop_expr is a dict or a list)
+            if(!loop_var->eq(loop_var)) {
+                codegen(<else>);
+                break;
+            }
+        (else)
+            if(loop_var == nullptr) {
+                codegen(<else>);
+                break;
+            }
+        loop_expr->_cnt++;
+        <Type of id> <id> = dynamic_cast<Type of id>(loop_var);
+        codegen(<stmt>);
+    }
+}

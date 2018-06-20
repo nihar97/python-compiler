@@ -1,0 +1,5 @@
+line continuations dont work in a comment
+hashes don't start a comment in a string # not to be included
+
+not even in a multiline comment # where it might make sense for them to work
+

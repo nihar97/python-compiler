@@ -1,0 +1,146 @@
+Testing correct programs...
+rm -f errflag
+if [ -f runtime3.py ]; then run="--runtime=runtime3.py"; fi; \
+        python3 test-proj3 --compiler=/mnt/c/Users/srini/Documents/cs164/team-repo/proj3/apyc $run correct3/*.py || touch errflag
+Clueless_1.py: OK
+Clueless_2.py: OK
+Clueless_3.py: OK
+Snl_jk_2.py: OK
+Snl_jk_add-ints.py: OK
+Snl_jk_allocate_in_method.py: FAIL (wrong exit code from compiler)
+Snl_jk_anything_goes_in_comments.py: OK
+Snl_jk_assign_then_lookup_multiple.py: OK
+Snl_jk_assign_then_lookup_simple.py: OK
+Snl_jk_basic_function.py: OK
+Snl_jk_boolean_ops.py: OK
+Snl_jk_bools.py: OK
+Snl_jk_call_twice.py: OK
+Snl_jk_chained_specialized_types.py: OK
+Snl_jk_class_simple_without_type.py: OK
+Snl_jk_class_without_type.py: FAIL (wrong exit code from compiler)
+Snl_jk_comma_in_conditional.py: OK
+Snl_jk_corner_case_overload.py: OK
+Snl_jk_deep_types.py: OK
+Snl_jk_dict-index.py: OK
+Snl_jk_div-ints.py: OK
+Snl_jk_dot_accessing.py: FAIL (wrong exit code from compiler)
+Snl_jk_dot_accessing_typed.py: FAIL (wrong exit code from compiler)
+Snl_jk_empty.py: OK
+Snl_jk_empty_dict.py: OK
+Snl_jk_empty_list.py: OK
+Snl_jk_empty_return.py: OK
+Snl_jk_empty_tuple.py: OK
+Snl_jk_for_dict.py: OK
+Snl_jk_for_list.py: OK
+Snl_jk_for_typed.py: OK
+Snl_jk_for_while_else.py: OK
+Snl_jk_function_call_empty.py: OK
+Snl_jk_function_composition.py: OK
+Snl_jk_function_from_nothing.py: OK
+Snl_jk_function_type.py: OK
+Snl_jk_function_with_trailing_comma.py: OK
+Snl_jk_identifier-used-before-def.py: OK
+Snl_jk_if.py: OK
+Snl_jk_in.py: OK
+Snl_jk_is.py: OK
+Snl_jk_l2.py: OK
+Snl_jk_len.py: OK
+Snl_jk_lex_valid_identiifers.py: OK
+Snl_jk_lexical_scope.py: OK
+Snl_jk_list-index.py: OK
+Snl_jk_list_display.py: OK
+Snl_jk_list_mut.py: OK
+Snl_jk_loop_control.py: OK
+Snl_jk_many_comparisons.py: OK
+Snl_jk_mix_tabs_spaces.py: OK
+Snl_jk_mul_string.py: OK
+Snl_jk_mult-ints.py: OK
+Snl_jk_nested_ternary.py: OK
+Snl_jk_nested_while_else.py: OK
+Snl_jk_no_exec_loop_else.py: OK
+Snl_jk_node.py: OK
+Snl_jk_none_addition.py: OK
+Snl_jk_pow_right_assoc.py: OK
+Snl_jk_precendence.py: OK
+Snl_jk_print-dict.py: OK
+Snl_jk_print-int.py: OK
+Snl_jk_print-list.py: OK
+Snl_jk_print-str.py: OK
+Snl_jk_print-tuple.py: OK
+Snl_jk_print_middle_of_a_string.py: OK
+Snl_jk_print_nil.py: OK
+Snl_jk_print_vs_println.py: OK
+Snl_jk_rangelen.py: OK
+Snl_jk_simple_div.py: OK
+Snl_jk_simple_print.py: OK
+Snl_jk_single-quote.py: OK
+Snl_jk_slice_list.py: OK
+Snl_jk_slicing.py: OK
+Snl_jk_spec_example.py: OK
+Snl_jk_string_slice.py: OK
+Snl_jk_sub-ints.py: OK
+Snl_jk_sum.py: OK
+Snl_jk_to-int.py: OK
+Snl_jk_to-str.py: OK
+Snl_jk_trivial.py: OK
+Snl_jk_tuple_display.py: OK
+Snl_jk_typvar_box_super_simple.py: OK
+Snl_jk_unpacking.py: OK
+Snl_jk_very-basic-if.py: OK
+Snl_jk_weird_not_operator.py: OK
+Snl_jk_weird_semicolon.py: OK
+Snl_jk_while_loop.py: OK
+Snl_jk_while_loop_break.py: OK
+Snl_jk_why_indentation2.py: OK
+balanced_exprs.py: OK
+d1.py: OK
+dict_duplicate.py: OK
+hi.py: OK
+if.py: OK
+print.py: OK
+quick_mafs.py: OK
+slice_assign_mutate.py: OK
+slice_mutate.py: OK
+subscript_assign.py: OK
+targetAssignList.py: OK
+temp1.py: OK
+temp10.py: OK
+temp11.py: OK
+temp12.py: OK
+temp13.py: OK
+temp14.py: OK
+temp15.py: OK
+temp16.py: OK
+temp17.py: OK
+temp18.py: OK
+temp19.py: OK
+temp2.py: OK
+temp20.py: OK
+temp21.py: OK
+temp23.py: OK
+temp24.py: OK
+temp25.py: OK
+temp26.py: OK
+temp27.py: OK
+temp28.py: OK
+temp29.py: OK
+temp3.py: OK
+temp4.py: OK
+temp5.py: OK
+temp6.py: OK
+temp7.py: OK
+temp8.py: OK
+temp9.py: OK
+while_basic.py: OK
+while_else.py: OK
+while_else_break.py: OK
+Ran 132 tests. 4 failed.
+
+Testing erroneous programs...
+python3 test-proj3 --errors --compiler=/mnt/c/Users/srini/Documents/cs164/team-repo/proj3/apyc error3/*.py || touch errflag
+bad-subscript-1.py: OK
+zero-division.py: OK
+Ran 2 tests. All passed.
+make[1]: *** [check3] Error 1
+make[1]: Leaving directory `/mnt/c/Users/srini/Documents/cs164/team-repo/proj3/tests'
+make: *** [check] Error 2
